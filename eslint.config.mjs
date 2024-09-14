@@ -8,7 +8,7 @@ export default [
   {
     files: ['**/*.{js,mjs,cjs,jsx}'],
     languageOptions: {
-      globals: globals.browser,
+      globals: { ...globals.browser, module: true, process: true },
     },
     plugins: {
       react,
