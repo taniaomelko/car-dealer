@@ -1,131 +1,93 @@
-import Head from 'next/head';
-import styles from '../styles/Home.module.css';
+import { useState, useEffect, Suspense, lazy } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+
+const FormComponent = lazy(() => import('../components/FormComponent'));
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  const {
+    data: makes = [],
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ['vehicleMakes'],
+    queryFn: async () => {
+      console.log();
 
-      <main>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+      const response = await fetch(
+        `${apiUrl}/vehicles/GetMakesForVehicleType/car?format=json`
+      );
+      const data = await response.json();
+      return data.Results || [];
+    },
+  });
 
-        <p className={styles.description}>
-          Get started by editing <code>pages/index.js</code>
-        </p>
+  const [selectedMake, setSelectedMake] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
+  const [years, setYears] = useState([]);
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const yearsRange = Array.from(
+      { length: currentYear - 2014 },
+      (_, i) => currentYear - i
+    );
+    setYears(yearsRange);
+  }, []);
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+  const isFormValid = selectedMake && selectedYear;
+  const router = useRouter();
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+  const handleNextClick = () => {
+    if (isFormValid) {
+      router.push(
+        `/result/${encodeURIComponent(selectedMake)}/${encodeURIComponent(selectedYear)}`
+      );
+    }
+  };
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+  if (isLoading)
+    return (
+      <section className="py-5">
+        <div className="container">
+          <p>Loading...</p>
         </div>
-      </main>
+      </section>
+    );
 
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
-        </a>
-      </footer>
+  if (error)
+    return (
+      <section className="py-5">
+        <div className="container">
+          <p>Error fetching makes: {error.message}</p>
+        </div>
+      </section>
+    );
 
-      <style jsx>{`
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        footer img {
-          margin-left: 0.5rem;
-        }
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          text-decoration: none;
-          color: inherit;
-        }
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family:
-            Menlo,
-            Monaco,
-            Lucida Console,
-            Liberation Mono,
-            DejaVu Sans Mono,
-            Bitstream Vera Sans Mono,
-            Courier New,
-            monospace;
-        }
-      `}</style>
+  return (
+    <section className="py-5">
+      <div className="container">
+        <div className="mx-auto max-w-2xl">
+          <h1 className="mb-6 text-2xl font-bold text-center">
+            Filter Vehicles
+          </h1>
 
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            Segoe UI,
-            Roboto,
-            Oxygen,
-            Ubuntu,
-            Cantarell,
-            Fira Sans,
-            Droid Sans,
-            Helvetica Neue,
-            sans-serif;
-        }
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
+          <Suspense fallback={<p>Loading form...</p>}>
+            <FormComponent
+              makes={makes}
+              years={years}
+              selectedMake={selectedMake}
+              selectedYear={selectedYear}
+              setSelectedMake={setSelectedMake}
+              setSelectedYear={setSelectedYear}
+              isFormValid={isFormValid}
+              handleNextClick={handleNextClick}
+            />
+          </Suspense>
+        </div>
+      </div>
+    </section>
   );
 }
