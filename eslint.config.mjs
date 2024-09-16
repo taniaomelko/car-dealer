@@ -5,16 +5,20 @@ import prettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierConfig from 'eslint-config-prettier';
 
 export default [
+  { files: ['**/*.{js,mjs,cjs,jsx}'] },
+  { ignores: ['node_modules', 'out/', '.next'] },
   {
-    files: ['**/*.{js,mjs,cjs,jsx}'],
-    ignores: ['node_modules', 'out', '.next'],
     languageOptions: {
       globals: { ...globals.browser, module: true, process: true },
     },
+  },
+  {
     plugins: {
       react,
       prettier,
     },
+  },
+  {
     settings: {
       react: {
         version: 'detect',
