@@ -35,7 +35,7 @@ export default function FormComponent({
       <div className="flex-1">
         <label
           htmlFor="year"
-          className="block text-sm font-semibold text-blue-700"
+          className="block text-sm font-semibold text-blue-500"
         >
           Model Year
         </label>
