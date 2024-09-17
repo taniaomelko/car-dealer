@@ -74,36 +74,3 @@ export default function ResultPage() {
     </section>
   );
 }
-
-export async function getStaticPaths() {
-  const response = await fetch(
-    `${apiUrl}/vehicles/GetMakesForVehicleType/car?format=json`
-  );
-  const makesData = await response.json();
-  const makes = makesData.Results || [];
-
-  const currentYear = new Date().getFullYear();
-  const yearsRange = Array.from(
-    { length: currentYear - 2014 },
-    (_, i) => currentYear - i
-  );
-
-  const paths = makes.flatMap((make) =>
-    yearsRange.map((year) => ({
-      params: { makeId: make.MakeId.toString(), year: year.toString() },
-    }))
-  );
-
-  return { paths, fallback: 'blocking' };
-}
-
-export async function getStaticProps({ params }) {
-  const { makeId, year } = params;
-
-  return {
-    props: {
-      makeId,
-      year,
-    },
-  };
-}
