@@ -8,6 +8,10 @@ export default function FormComponent({
   isFormValid,
   handleNextClick,
 }) {
+  const sortedMakes = [...makes].sort((a, b) =>
+    a.MakeName.localeCompare(b.MakeName)
+  );
+
   return (
     <form className="flex flex-col md:flex-row gap-6 justify-center md:items-end">
       <div className="flex-1">
@@ -24,7 +28,7 @@ export default function FormComponent({
           className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-1 py-2"
         >
           <option value="">Select a make</option>
-          {makes.map((make) => (
+          {sortedMakes.map((make) => (
             <option key={make.MakeId} value={make.MakeName}>
               {make.MakeName}
             </option>
