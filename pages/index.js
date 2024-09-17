@@ -14,8 +14,6 @@ export default function Home() {
   } = useQuery({
     queryKey: ['vehicleMakes'],
     queryFn: async () => {
-      console.log();
-
       const response = await fetch(
         `${apiUrl}/vehicles/GetMakesForVehicleType/car?format=json`
       );
