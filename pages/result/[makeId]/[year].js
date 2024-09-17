@@ -74,3 +74,26 @@ export default function ResultPage() {
     </section>
   );
 }
+
+export async function generateStaticParams() {
+  const response = await fetch(
+    `${apiUrl}/vehicles/GetMakesForVehicleType/car?format=json`
+  );
+  const makesData = await response.json();
+  const makes = makesData.Results || [];
+
+  const currentYear = new Date().getFullYear();
+  const yearsRange = Array.from(
+    { length: currentYear - 2014 + 1 },
+    (_, i) => currentYear - i
+  );
+
+  const params = makes.flatMap((make) =>
+    yearsRange.map((year) => ({
+      makeId: make.MakeId.toString(),
+      year: year.toString(),
+    }))
+  );
+
+  return params;
+}
