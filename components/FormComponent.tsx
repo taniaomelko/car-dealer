@@ -1,4 +1,17 @@
-export default function FormComponent({
+import { tMake } from '../types/tMake';
+
+type FormComponentProps = {
+  makes: tMake[];
+  years: number[];
+  selectedMake: string;
+  selectedYear: string;
+  setSelectedMake: (_: string) => void;
+  setSelectedYear: (_: string) => void;
+  isFormValid: boolean;
+  handleNextClick: () => void;
+};
+
+const FormComponent: React.FC<FormComponentProps> = ({
   makes,
   years,
   selectedMake,
@@ -7,7 +20,7 @@ export default function FormComponent({
   setSelectedYear,
   isFormValid,
   handleNextClick,
-}) {
+}) => {
   const sortedMakes = [...makes].sort((a, b) =>
     a.MakeName.localeCompare(b.MakeName)
   );
@@ -28,9 +41,9 @@ export default function FormComponent({
           className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-1 py-2"
         >
           <option value="">Select a make</option>
-          {sortedMakes.map((make) => (
-            <option key={make.MakeId} value={make.MakeName}>
-              {make.MakeName}
+          {sortedMakes.map(({ MakeId, MakeName }) => (
+            <option key={MakeId} value={MakeName}>
+              {MakeName}
             </option>
           ))}
         </select>
@@ -50,7 +63,7 @@ export default function FormComponent({
           className="mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-1 py-2"
         >
           <option value="">Select a year</option>
-          {years.map((year) => (
+          {years.map((year: number) => (
             <option key={year} value={year}>
               {year}
             </option>
@@ -68,4 +81,6 @@ export default function FormComponent({
       </button>
     </form>
   );
-}
+};
+
+export default FormComponent;

@@ -3,7 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import React, { Suspense, lazy } from 'react';
 import { getYearsRange } from '../../../utils/helpers';
-import { fetchVehicleMakes, fetchVehicleModels } from '../../../utils/api';
+import {
+  fetchVehicleMakes,
+  fetchVehicleModels,
+  FetchVehicleModelsResponse,
+} from '../../../utils/api';
+import { tModel } from '../../../types/tModel';
+import { tMake } from '../../../types/tMake';
 
 const VehicleModelsDisplay = lazy(
   () => import('../../../components/VehicleModelsDisplay')
@@ -14,12 +20,12 @@ export default function ResultPage() {
   const { makeId, year } = router.query;
 
   const {
-    data: models = [],
+    data: response = { Results: [] },
     error,
     isLoading,
-  } = useQuery({
+  } = useQuery<FetchVehicleModelsResponse>({
     queryKey: ['vehicleModels', makeId, year],
-    queryFn: () => fetchVehicleModels(makeId, year),
+    queryFn: () => fetchVehicleModels(makeId as string, year as string),
     enabled: !!makeId && !!year,
   });
 
@@ -40,6 +46,8 @@ export default function ResultPage() {
         </div>
       </section>
     );
+
+  const models: tModel[] = response.Results;
 
   return (
     <section className="py-5">
@@ -68,10 +76,10 @@ export default function ResultPage() {
 }
 
 export async function generateStaticParams() {
-  const makes = fetchVehicleMakes();
+  const makes = await fetchVehicleMakes();
   const yearsRange = getYearsRange();
 
-  const params = makes.flatMap((make) =>
+  const params = makes.flatMap((make: tMake) =>
     yearsRange.map((year) => ({
       makeId: make.MakeId.toString(),
       year: year.toString(),

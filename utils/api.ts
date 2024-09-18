@@ -1,3 +1,6 @@
+// src/utils/api.ts
+import { tModel } from '../types/tModel';
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchVehicleMakes = async () => {
@@ -8,10 +11,17 @@ export const fetchVehicleMakes = async () => {
   return data.Results || [];
 };
 
-export const fetchVehicleModels = async (makeId, year) => {
+export type FetchVehicleModelsResponse = {
+  Results: tModel[];
+};
+
+export const fetchVehicleModels = async (
+  makeId: string,
+  year: string
+): Promise<FetchVehicleModelsResponse> => {
   const response = await fetch(
     `${apiUrl}/vehicles/getModelsForMake/${makeId}?modelYear=${year}&format=json`
   );
   const data = await response.json();
-  return data.Results || [];
+  return data as FetchVehicleModelsResponse;
 };

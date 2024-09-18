@@ -16,15 +16,15 @@ export default function Home() {
     queryFn: fetchVehicleMakes,
   });
 
-  const [selectedMake, setSelectedMake] = useState('');
-  const [selectedYear, setSelectedYear] = useState('');
-  const [years, setYears] = useState([]);
+  const [selectedMake, setSelectedMake] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [years, setYears] = useState<number[]>([]);
 
   useEffect(() => {
     setYears(getYearsRange());
   }, []);
 
-  const isFormValid = selectedMake && selectedYear;
+  const isFormValid = !!selectedMake && !!selectedYear;
   const router = useRouter();
 
   const handleNextClick = () => {
