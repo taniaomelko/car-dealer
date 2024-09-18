@@ -2,16 +2,8 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import React, { Suspense, lazy } from 'react';
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-const fetchVehicleModels = async (makeId, year) => {
-  const response = await fetch(
-    `${apiUrl}/vehicles/getModelsForMake/${makeId}?modelYear=${year}&format=json`
-  );
-  const data = await response.json();
-  return data.Results || [];
-};
+import { getYearsRange } from '../../../utils/helpers';
+import { fetchVehicleMakes, fetchVehicleModels } from '../../../utils/api';
 
 const VehicleModelsDisplay = lazy(
   () => import('../../../components/VehicleModelsDisplay')
@@ -76,17 +68,8 @@ export default function ResultPage() {
 }
 
 export async function generateStaticParams() {
-  const response = await fetch(
-    `${apiUrl}/vehicles/GetMakesForVehicleType/car?format=json`
-  );
-  const makesData = await response.json();
-  const makes = makesData.Results || [];
-
-  const currentYear = new Date().getFullYear();
-  const yearsRange = Array.from(
-    { length: currentYear - 2014 + 1 },
-    (_, i) => currentYear - i
-  );
+  const makes = fetchVehicleMakes();
+  const yearsRange = getYearsRange();
 
   const params = makes.flatMap((make) =>
     yearsRange.map((year) => ({

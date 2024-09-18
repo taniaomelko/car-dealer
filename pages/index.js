@@ -1,10 +1,10 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
+import { fetchVehicleMakes } from '../utils/api';
+import { getYearsRange } from '../utils/helpers';
 
 const FormComponent = lazy(() => import('../components/FormComponent'));
-
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Home() {
   const {
@@ -13,13 +13,7 @@ export default function Home() {
     isLoading,
   } = useQuery({
     queryKey: ['vehicleMakes'],
-    queryFn: async () => {
-      const response = await fetch(
-        `${apiUrl}/vehicles/GetMakesForVehicleType/car?format=json`
-      );
-      const data = await response.json();
-      return data.Results || [];
-    },
+    queryFn: fetchVehicleMakes,
   });
 
   const [selectedMake, setSelectedMake] = useState('');
@@ -27,12 +21,7 @@ export default function Home() {
   const [years, setYears] = useState([]);
 
   useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    const yearsRange = Array.from(
-      { length: currentYear - 2014 },
-      (_, i) => currentYear - i
-    );
-    setYears(yearsRange);
+    setYears(getYearsRange());
   }, []);
 
   const isFormValid = selectedMake && selectedYear;
